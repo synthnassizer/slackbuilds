@@ -6,11 +6,14 @@
 # customary to leave one space after the ':' except on otherwise blank lines.
 
        |-----handy-ruler------------------------------------------------------|
-freerdp: FreeRDP: A Remote Desktop Protocol Implementation
+freerdp: freerdp: A  Remote Desktop Protocol Implementation
 freerdp:
 freerdp:
 freerdp: FreeRDP is a free implementation of the Remote Desktop Protocol (RDP),
 freerdp: released under the Apache license. Enjoy the freedom of using your
 freerdp: software wherever you want, the way you want it, in a world where
 freerdp: interoperability can finally liberate your computing experience.
+freerdp:
+freerdp:
+freerdp:
 freerdp:
