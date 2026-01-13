@@ -4,21 +4,16 @@
 
 sssd_start()
 {
-  echo -n "Starting SSSD daemon:  /usr/local/sbin/sssd -c /usr/local/etc/sssd/sssd.conf --logger=files"
-  /usr/local/sbin/sssd -c /usr/local/etc/sssd/sssd.conf --logger=files
+  echo -n "Starting SSSD daemon:  /usr/sbin/sssd -c /etc/sssd/sssd.conf --logger=files"
+  /usr/sbin/sssd -c /etc/sssd/sssd.conf --logger=files
   echo
 }
 
 sssd_stop()
 {
   echo -n "Stopping SSSD daemon... "
-  if [ -r /run/sssd.pid ]; then
-    echo -n "(PID $(cat /run/sssd.pid))"
-    kill -HUP $(cat /run/sssd.pid)
-    rm -f /run/sssd.pid
-  else
-    killall --ns $$ -HUP -q sssd
-  fi
+  sssd_pid=$( ps aux | grep -v grep | grep sssd | grep sbin | awk '{print $2}' )
+  [ "${sssd_pid}x" != "x" ] && kill -15 "${sssd_pid}"
   echo
 }
 

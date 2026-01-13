@@ -4,8 +4,10 @@ Enroll your Linux machine into an Active Directory, FreeIPA or LDAP domain.
 Use remote identities, policies and various authentication and authorization
 mechanisms to access your computer.
 
-NOTE: Installed under /usr/local intentionally.
-      To start automatically set execution bit in /etc/rc.d/rc.sssd and add 
+Once installed you must CAREFULLY update kerberos, samba and pam. Please
+read /usr/share/doc/howto_sssd_configuration (TODO)
+
+NOTE: To start automatically, set execution bit in /etc/rc.d/rc.sssd and add 
       in /etc/rc.d/rc.local :
 
       if [ -x /etc/rc.d/rc.sssd ] ; then

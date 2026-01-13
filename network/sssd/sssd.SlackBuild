@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Slackware build script for torsocks
+# Slackware build script for sssd
 
 # Written by Vincent Batts, vbatts@hashbangbash.com
 
@@ -11,7 +11,7 @@ cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=sssd
 VERSION=${VERSION:-2.11.1}
-BUILD=${BUILD:-1}
+BUILD=${BUILD:-5}
 TAG=${TAG:-_SBo}
 PKGTYPE=${PKGTYPE:-tgz}
 
@@ -65,34 +65,50 @@ cat $CWD/fix_samba_priv_idmap.patch | patch -p0 || exit 1
 
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
-#intensionally prefix left to "/usr/local as sssd is a bit of a mess"
 ./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --enable-pammoddir=/lib${LIBDIRSUFFIX} \
+  --sysconfdir=/etc \
+  --localstatedir=/var \
   --with-oidc-child=no \
   --with-selinux=no \
+  --enable-ldb-version-check \
   --build=$ARCH-slackware-linux
 
 make
 make install DESTDIR=$PKG
 
-mkdir -p $PKG/etc/rc.d/ $PKG/etc/ld.so.conf.d/ $PKG/usr/local/etc/sssd/
+mkdir -p $PKG/etc/rc.d/
 cp $CWD/rc.sssd $PKG/etc/rc.d/
-cp $CWD/sssd_libpath.conf $PKG/etc/ld.so.conf.d/
-cp $PKG/usr/local/lib/sssd/conf/sssd.conf $PKG/usr/local/etc/sssd/
+#cp $CWD/sssd_libpath.conf $PKG/etc/ld.so.conf.d/
+cp $PKG/usr/lib${LIBDIRSUFFIX}/sssd/conf/sssd.conf $PKG/etc/sssd/
+
+# we should delete all .la libtool archives or sssd will not start, according to 
+# https://sssd-devel.fedorahosted.narkive.com/m7y0mAhP/sssd-memberof-la-error-after-make-install
+find $PKG -name "*.la" -exec rm '{}' \;
 
 find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
   | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
 mkdir -p $PKG/usr/man
-find $PKG/usr/local/share/man -type f -exec gzip -9 {} \;
-for i in $( find $PKG/usr/local/share/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
+find $PKG/usr/share/man -type f -exec gzip -9 {} \;
+for i in $( find $PKG/usr/share/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 
-mkdir -p $PKG/usr/local/doc/$PRGNAM-$VERSION
-cp -a COPYING README.md $PKG/usr/local/doc/$PRGNAM-$VERSION
-cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/local/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a COPYING README.md $PKG/usr/doc/$PRGNAM-$VERSION
+cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
 cp $CWD/doinst.sh $PKG/install/
 cat $CWD/slack-desc > $PKG/install/slack-desc
+
+#create soft links for the sssd_* executables in /usr/sbin
+cd $PKG/usr/sbin
+find $PKG/usr/libexec/sssd/ -type f -name "sssd_*" | while read x ; do 
+  i=$(basename $x)
+  ln -s /usr/libexec/sssd/$i $i
+done
 
 cd $PKG
 /sbin/makepkg -l n -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
