@@ -1,0 +1,11 @@
+--- plugins/ogg_new_stream_handler.h.orig	2026-01-28 16:39:04.479527753 +0200
++++ plugins/ogg_new_stream_handler.h	2026-01-28 16:39:23.996526596 +0200
+@@ -61,7 +61,7 @@
+ 
+ void splt_ogg_initialise_for_new_stream(splt_ogg_new_stream_handler *nsh, 
+     ogg_page *page, ogg_int64_t *cutpoint, ogg_int64_t previous_granulepos);
+-int splt_ogg_new_stream_needs_header_packet();
++int splt_ogg_new_stream_needs_header_packet(splt_ogg_new_stream_handler *nsh);
+ void splt_ogg_new_stream_handle_header_packet(splt_ogg_new_stream_handler *nsh, ogg_packet *packet, int *error);
+ 
+ #define MP3SPLT_OGG_NEW_STREAM_HANDLER_H
